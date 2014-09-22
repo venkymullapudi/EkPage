@@ -1,6 +1,6 @@
 #!/bin/ksh
 #-------------------------------------------------------------------------------
-#  Author   : Venkatesh Mullapudi
+#  Author   : Venky Mullapudi
 #  Date     : 22nd Sept 2014
 #  Version  : 1.0
 #  Purpose  : A basic Command User interface with Two menus and Two submenus, to make Shell Scripting Easy

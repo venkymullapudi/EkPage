@@ -1,0 +1,289 @@
+#!/bin/ksh
+#-------------------------------------------------------------------------------
+#  Author   : Venkatesh Mullapudi
+#  Date     : 22nd Sept 2014
+#  Version  : 1.0
+#  Purpose  : A basic Command User interface with Two menus and Two submenus, to make Shell Scripting Easy
+#  Comments : Initial version.
+
+# The script is divided into Three Parts -
+# 1. Key-presses and Variable Declaration
+# 2. Menu Functions
+# 3. Calling Main Menu Function
+
+#-
+# Key-presses and Variable Declaration - STARTS HERE
+# Does not have to be changed, unless you are adding more Key Presses or Declaring other Global Variables
+
+AWK=gawk
+[ -x /bin/nawk ] && AWK=nawk
+ECHO="print"
+ECHO_N="print -n"
+
+tty_save=$(stty -g)
+
+function Get_odx
+{
+    od -t o1 | $AWK '{ for (i=2; i<=NF; i++)
+                        printf("%s%s", i==2 ? "" : " ", $i)
+                        exit }'
+}
+
+# Grab terminal capabilities
+tty_cuu1=$(tput cuu1 2>&1 | Get_odx)            # up arrow
+tty_kcuu1=$(tput kcuu1 2>&1 | Get_odx)
+tty_cud1=$(tput cud1 2>&1 | Get_odx)            # down arrow
+tty_kcud1=$(tput kcud1 2>&1 | Get_odx)
+tty_cub1=$(tput cub1 2>&1 | Get_odx)            # left arrow
+tty_kcub1=$(tput kcud1 2>&1 | Get_odx)
+tty_cuf1=$(tput cuf1 2>&1 | Get_odx)            # right arrow
+tty_kcuf1=$(tput kcud1 2>&1 | Get_odx)
+tty_ent=$($ECHO | Get_odx)                      # Enter key
+tty_kent=$(tput kent 2>&1 | Get_odx)
+tty_bs=$($ECHO_N "\b" | Get_odx)                # Backspace key
+tty_kbs=$(tput kbs 2>&1 | Get_odx)
+tty_q=$($ECHO_N "q" | Get_odx)                  # q key
+
+
+# Some terminals (e.g. PuTTY) send the wrong code for certain arrow keys
+if [ "$tty_cuu1" = "033 133 101" -o "$tty_kcuu1" = "033 133 101" ]; then
+    tty_cudx="033 133 102"
+    tty_cufx="033 133 103"
+    tty_cubx="033 133 104"
+fi
+
+stty cs8 -icanon -echo min 10 time 1
+stty intr '' susp ''
+trap "stty $tty_save; exit"  INT HUP TERM
+
+#KEY-PRESSES AND VARIABLE DECLARATION - ENDS HERE
+
+#-
+# Functions "keypress", "Sub_Menu1", "zmt_menu" and "main_menu" - STARTS HERE
+# Does not have to be changed, unless you are adding more functions or enhancing the existing ones
+
+keypress()
+{
+    keypress=$(dd bs=10 count=1 2> /dev/null | Get_odx)
+    case "$keypress" in
+        "$tty_ent"|"$tty_kent") opkey="ENTER";;
+        "$tty_bs"|"$tty_kbs") opkey="BACKSPACE";;
+        "$tty_cuu1"|"$tty_kcuu1") opkey="KEY_UP";;
+        "$tty_cud1"|"$tty_kcud1"|"$tty_cudx") opkey="KEY_DOWN";;
+        "$tty_cub1"|"$tty_kcub1"|"$tty_cubx") opkey="KEY_LEFT";;
+        "$tty_cuf1"|"$tty_kcuf1"|"$tty_cufx") opkey="KEY_RIGHT";;
+        "$tty_q") opkey="q";;
+        *) opkey="";;
+    esac
+}
+help()
+{
+tput enacs;tput smacs;
+tput cup 18 15; print "\033[0;31mlqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk"
+tput cup 19 15; print "x                                                 x"
+tput cup 20 15; print "x                                                 x"
+tput cup 21 15; print "x                                                 x"
+tput cup 22 15; print "\033[0;31mmqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj\033[0m"
+tput rmacs
+tput cup 19 18; print "Use 'Up/Down Arrow Keys' for Navigation"
+tput cup 20 18; print "Use 'Enter' Key for Executing the Action"
+tput cup 21 18; print "Use 'Left Arrow Key' to go back and q to quit"
+}
+
+main_box()
+{
+tput bold
+tput enacs
+tput smacs
+tput cup 0 0;  print "\033[0;31mlqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk"
+tput cup 1 0;  print "\033[0;31mxlqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkx"
+tput cup 2 0;  print "\033[0;31mxx                                                                            xx"
+tput cup 3 0;  print "\033[0;31mxx                                                                            xx"
+tput cup 4 0;  print "\033[0;31mxx                                                                            xx"
+tput cup 5 0;  print "\033[0;31mxx                                                                            xx"
+tput cup 6 0;  print "\033[0;31mxx                                                                            xx"
+tput cup 7 0;  print "\033[0;31mxx                                                                            xx"
+tput cup 8 0;  print "\033[0;31mxx                                                                            xx"
+tput cup 9 0;  print "\033[0;31mxx                                                                            xx"
+tput cup 10 0; print "\033[0;31mxx                                                                            xx"
+tput cup 11 0; print "\033[0;31mxx                                                                            xx"
+tput cup 12 0; print "\033[0;31mxx                                                                            xx"
+tput cup 13 0; print "\033[0;31mxx                                                                            xx"
+tput cup 14 0; print "\033[0;31mxx                                                                            xx"
+tput cup 15 0; print "\033[0;31mxx                                                                            xx"
+tput cup 16 0; print "\033[0;31mxx                                                                            xx"
+tput cup 17 0; print "\033[0;31mxx                                                                            xx"
+tput cup 18 0; print "\033[0;31mxx                                                                            xx"
+tput cup 19 0; print "\033[0;31mxx                                                                            xx"
+tput cup 20 0; print "\033[0;31mxx                                                                            xx"
+tput cup 21 0; print "\033[0;31mxx                                                                            xx"
+tput cup 22 0; print "\033[0;31mxmqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqjx"
+tput cup 23 0; print "\033[0;31mmqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj\033[0m"
+
+tput cup 1 30; print "\033[0;31mlqqqqqqqqqqqqqqqqqk"
+tput cup 2 30; print "x                 x"
+tput cup 3 30; print "mqqqqqqqqqqqqqqqqqj\033[0m"
+tput rmacs
+tput cup 2 32; echo "\033[1;33;41m EkPage \033[m\033[1;33;44m Shell Script Menu \033[m";
+}
+
+
+Sub_Menu1()
+{
+main_box;
+help;
+tput cup 5 8; tput smso; echo "Sub Menu 1 - Item 1";  tput rmso; tput cup 6 8; echo "Sub Menu 1 - Item 2";
+
+while :; do
+    [ ] && break
+
+keypress;
+
+ case "$opkey" in
+
+ "KEY_UP") tput cup 5 8; tput smso; echo "Sub Menu 1 - Item 1";  tput rmso; tput cup 6 8; echo "Sub Menu 1 - Item 2";
+                    keypress;
+                    case "$opkey" in
+                      "ENTER") echo "This is the First Function in Sub Menu 1 - Item 1"; break;;
+                     "KEY_DOWN") Sub_Menu1;;
+                        "KEY_LEFT") clear; main_menu;;
+                       "q") stty $tty_save; tput cup 25 0; exit 0;;
+                         *) tput cup 15 8; echo "Invalid Key........"; sleep 1; Sub_Menu1;;
+                     esac;;
+
+
+ "KEY_DOWN") tput cup 5 8; echo "Sub Menu 1 - Item 1"; tput smso; tput cup 6 8; echo "Sub Menu 1 - Item 2"; tput rmso;
+                    keypress;
+                    case "$opkey" in
+                      "ENTER") echo "This is the First Function in Sub Menu 1 - Item 2"; break;;
+                         "KEY_UP") Sub_Menu1;;
+                        "KEY_LEFT") clear; main_menu;;
+                           "q") stty $tty_save; tput cup 25 0; exit 0;;
+                         *) tput cup 15 8; echo "Invalid Key........"; sleep 1; Sub_Menu1;;
+                     esac;;
+ "ENTER") echo "This is the First Function in Sub Menu 1 - Item 1"; break;;
+ "KEY_LEFT") clear; main_menu;;
+           "q") stty $tty_save; tput cup 25 0; exit 0;;
+    *) tput cup 15 8; echo "Invalid Key........"; sleep 1; Sub_Menu1;;
+ esac
+done
+}
+
+Sub_Menu2()
+{
+clear
+while :; do
+    [ ] && break
+main_box;
+help;
+tput cup 5 8;
+tput smso; echo "Do you want to proceed to Item-1 in Submenu2, if yes press Enter Key\n"; tput rmso
+keypress;
+case "$opkey" in
+
+ "ENTER")
+   stty $tty_save
+   tput bold; tput cup 5 8; print "Please Enter the following"; tput rmso
+   tput cup 6 8; print "This is Item1 in Sub Menu 2";
+  break;;
+
+ "KEY_LEFT") clear; main_menu;;
+        "q") stty $tty_save; tput cup 25 0; exit 0;;
+ *) tput cup 15 8;echo "Invalid Key........"; sleep 1; Sub_Menu2;;
+esac
+done
+}
+
+main_menu()
+{
+main_box;
+ZMT=`echo "Sub Menu 2"`
+ZCT=`echo "Sub Menu 1"`
+tput smso; tput cup 5 8; echo $ZCT; tput rmso
+tput cup 6 8; echo $ZMT
+tput cup 7 8; echo "Sub Menu 3"
+tput cup 8 8; echo "Sub Menu 4"
+help;
+while :; do
+    [ ] && break
+
+keypress;
+
+       case "$opkey" in
+
+           "KEY_UP") tput cup 5 8; tput smso; echo $ZCT; tput rmso; tput cup 6 8; echo $ZMT;
+                     keypress;
+                    case "$opkey" in
+                      "ENTER") clear; Sub_Menu1; break;;
+                      "KEY_DOWN") main_menu;;
+                         *) tput cup 15 8; echo "Invalid Key........"; sleep 1; break;;
+                        "q") stty $tty_save; tput cup 25 0; exit 0;;
+                     esac;;
+
+           "KEY_DOWN") tput cup 5 8; echo "$ZCT";tput cup 6 8; tput smso; echo $ZMT; tput rmso;
+                       keypress;
+                      case "$opkey" in
+                       "ENTER") Sub_Menu2; break;;
+                       "KEY_UP") main_menu;;
+                        "q") stty $tty_save; tput cup 25 0; exit 0;;
+                         *) tput cup 15 8; echo "Invalid Key........"; sleep 1; main_menu;;
+                      esac;;
+
+           "ENTER") clear; Sub_Menu1; break;;
+
+           "q") stty $tty_save; tput cup 25 0; exit 0;;
+
+           *) tput cup 15 8; echo "Invalid Key........"; sleep 1; main_menu;;
+       esac
+done
+stty $tty_save
+}
+# Functions "keypress", "Sub_Menu1", "Sub_Menu2" and "main_menu" - ENDS HERE
+
+#-
+#Functions "script_process" and "script_kill" - STARTS HERE
+script_process()
+{
+ps -ef | grep -i $0 | grep -v grep | awk '{print $2}' > /tmp/$0.pid
+
+npid=`cat /tmp/$0.pid | wc -l`
+
+   if [ $npid -gt 1 ]; then
+
+      print " $0 is already running in $npid instances(PIDs are Below). Exiting.."
+       while read line
+       do
+        print "$line,\c"
+       done < /tmp/$0.pid
+       print "\n"
+       rm /tmp/$0.pid
+       stty $tty_save; exit 0;
+   fi
+}
+
+
+script_kill()
+{
+
+ps -ef | grep -i $0 | grep -v grep | awk '{print $2}' > /tmp/$0.pid
+
+npid=`cat /tmp/$0.pid | wc -l`
+
+   if [ $npid -gt 1 ]; then
+       while read line
+       do
+         kill -9 $line
+       done < /tmp/$0.pid
+   fi
+ rm /tmp/$0.pid
+stty $tty_save; exit 0;
+}
+#Functions "script_process" and "script_kill" - ENDS HERE
+
+#-
+#Calling the functions
+#Does no have to be changed under normal circumstances
+clear
+script_process;
+main_menu;
+script_kill

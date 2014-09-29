@@ -1,4 +1,4 @@
 ekpage
 ======
 
-Scripting Made Easier
+Shell Scripting Menu (Basic)
